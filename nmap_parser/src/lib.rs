@@ -3,6 +3,7 @@ use oxideprobe_core::{MatchRule, NmapProbe, VersionInfo};
 #[derive(Debug, Default)]
 pub struct ParseOutcome {
     pub probes: Vec<NmapProbe>,
+    pub excluded_ports: Vec<String>,
     pub warnings: Vec<String>,
 }
 
@@ -27,6 +28,11 @@ pub fn parse_database(input: &str) -> ParseOutcome {
                     .warnings
                     .push(format!("line {line_number}: {error}")),
             }
+            continue;
+        }
+
+        if let Some(value) = line.strip_prefix("Exclude ") {
+            outcome.excluded_ports.push(value.trim().to_string());
             continue;
         }
 
@@ -283,5 +289,15 @@ fallback GenericLines
         let outcome = parse_database("Probe TCP Broken q|unterminated");
         assert!(outcome.probes.is_empty());
         assert_eq!(outcome.warnings.len(), 1);
+    }
+
+    #[test]
+    fn accepts_the_global_exclude_directive() {
+        let input = "Exclude T:9100-9107\nProbe TCP NULL q||\n";
+        let outcome = parse_database(input);
+
+        assert!(outcome.warnings.is_empty(), "{:?}", outcome.warnings);
+        assert_eq!(outcome.excluded_ports, ["T:9100-9107"]);
+        assert_eq!(outcome.probes.len(), 1);
     }
 }
