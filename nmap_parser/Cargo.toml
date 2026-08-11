@@ -1,0 +1,14 @@
+[package]
+name = "oxideprobe-parser"
+version.workspace = true
+edition.workspace = true
+license.workspace = true
+repository.workspace = true
+
+[dependencies]
+anyhow.workspace = true
+clap.workspace = true
+oxideprobe-core = { path = "../oxideprobe-core" }
+reqwest.workspace = true
+serde_json.workspace = true
+tokio.workspace = true
