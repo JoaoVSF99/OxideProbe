@@ -29,6 +29,27 @@ async fn main() -> Result<()> {
     let cli = Cli::parse();
     let content = read_source(&cli.source).await?;
     let outcome = parse_database(&content);
+    let tcp_probes = outcome
+        .probes
+        .iter()
+        .filter(|probe| probe.protocol == "TCP")
+        .count();
+    let udp_probes = outcome
+        .probes
+        .iter()
+        .filter(|probe| probe.protocol == "UDP")
+        .count();
+    let matches = outcome
+        .probes
+        .iter()
+        .map(|probe| probe.matches.len())
+        .sum::<usize>();
+    let softmatches = outcome
+        .probes
+        .iter()
+        .map(|probe| probe.softmatches.len())
+        .sum::<usize>();
+
     if !outcome.warnings.is_empty() {
         eprintln!(
             "Parser completed with {} warning(s); the first 20 follow:",
@@ -38,13 +59,23 @@ async fn main() -> Result<()> {
             eprintln!("- {warning}");
         }
     }
+    if !outcome.excluded_ports.is_empty() {
+        eprintln!(
+            "Source exclusion(s): {}. They are not embedded in the JSON; select target ports explicitly when scanning.",
+            outcome.excluded_ports.join(", ")
+        );
+    }
 
     let json = serde_json::to_string_pretty(&outcome.probes)?;
     fs::write(&cli.output, json)
         .with_context(|| format!("failed to write {}", cli.output.display()))?;
     println!(
-        "Wrote {} probes to {}.",
+        "Wrote {} probes ({} TCP, {} UDP) containing {} match and {} softmatch signatures to {}.",
         outcome.probes.len(),
+        tcp_probes,
+        udp_probes,
+        matches,
+        softmatches,
         cli.output.display()
     );
     Ok(())
