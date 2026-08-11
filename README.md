@@ -97,6 +97,10 @@ Execute apenas contra sistemas próprios ou com autorização explícita. Mesmo 
 
 O parser usa, por padrão, o arquivo [`nmap-service-probes`](https://github.com/nmap/nmap/blob/master/nmap-service-probes) mantido pelo Nmap Project. O arquivo gerado (`probes.json`) não é versionado neste repositório.
 
+No formato do Nmap, um `Probe` representa o payload enviado ao serviço. Cada probe pode conter muitas assinaturas `match` e `softmatch`; por isso, uma contagem de centenas de probes pode representar milhares de assinaturas de identificação. Ao concluir, o parser informa essas contagens separadamente.
+
+A diretiva global `Exclude` da fonte é informada pela CLI, mas não é incorporada ao JSON. As portas verificadas continuam sendo definidas explicitamente com `oxideprobe --ports`.
+
 ## Licença
 
 Código disponibilizado sob a [licença MIT](LICENSE). Os dados e conteúdos provenientes do Nmap permanecem sujeitos aos termos do projeto de origem.
