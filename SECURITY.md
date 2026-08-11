@@ -2,8 +2,7 @@
 
 ## Supported version
 
-This learning project currently supports only the latest revision of the
-default branch.
+This project currently supports only the latest revision of the default branch.
 
 ## Reporting a vulnerability
 
